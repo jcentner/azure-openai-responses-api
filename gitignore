@@ -1,0 +1,5 @@
+# Runtime artifacts
+downloads/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
