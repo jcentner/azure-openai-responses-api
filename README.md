@@ -1,80 +1,52 @@
-# Azure OpenAI — Responses API + Code Interpreter: download a generated file
+# Downloading files from Azure OpenAI Responses API (Code Interpreter) — Python
 
-This tiny demo shows how to:
-1) Ask the **Responses API** (with **Code Interpreter**) to create a file in a sandboxed container.
-2) Parse the **annotations** returned by the assistant message to find `container_id`, `file_id`, and `filename`.
-3) **Download** the file to your local `./downloads/` folder.
+A simple example that creates a response with the Code Interpreter tool and downloads all files produced by that run.
 
-**What’s included**
-- `demo_code_interpreter_download.py` — one clean, runnable script with step-by-step console output.
-- `demo_code_interpreter_download.ipynb` — a Jupyter version split into cells to visualize each phase.
-- `downloads/` — where files will be saved (gitignored).
+Reference documentation: [Azure OpenAI Responses API - Code Interpreter](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?tabs=python-secure#code-interpreter)
 
----
-
-## Prereqs
-
+## Requirements
 - Python 3.9+
-- Packages:
+- Azure subscription with an Azure OpenAI resource
+- Auth via `DefaultAzureCredential` (e.g., `az login`, Managed Identity, etc.) or replace the token provider with an api-key in the client setup.
+- Python packages:
 ~~~
-pip install --upgrade openai azure-identity
-~~~
-
-> The script uses **Microsoft Entra ID** via `DefaultAzureCredential()` by default. There’s a one-line toggle at the top to switch to **API key** if you prefer.
-
----
-
-## Quick start (script)
-
-1) Open `demo_code_interpreter_download.py` and set these constants at the top:
-   - `ENDPOINT` (e.g., `https://<resource-name>.openai.azure.com/openai/v1/`)
-   - `API_VERSION` (e.g., `preview`)
-   - `DEPLOYMENT` (your model deployment name, e.g., `gpt-4o`)
-
-2) Run:
-~~~
-python demo_code_interpreter_download.py
+pip install openai azure-identity
 ~~~
 
-You should see step numbers like `[1/5]`, a table of discovered files, and the final local path. The script asks the model to create a `test.txt` file containing `hello world` and then downloads it to `./downloads/test.txt`.
-
----
-
-## Notebook option
-
-Start Jupyter and open the notebook:
+## Configure
+Edit the script and set your endpoint:
 ~~~
-jupyter lab
+endpoint = "https://<resource-name>.openai.azure.com/openai/v1/"
 ~~~
 
-Then run `demo_code_interpreter_download.ipynb` top-to-bottom to see the same flow in cells.
+## Run
+~~~
+python simple-code-interpreter-file-download.py
+~~~
 
----
+## What you’ll see (example)
+~~~
+Creating response...
 
-## How it works (short version)
+Full response.output:
+[ ... trimmed SDK objects ... ]
 
-1) Create a Response with:
-   - `tools=[{"type":"code_interpreter","container":{"type":"auto"}}]`
-   - An instruction that writes a file (e.g., `test.txt`).
+Found file: filename='test.txt', file_id='file_abc123', container_id='ctr_xyz789'
+Downloading file_id=file_abc123 from container_id=ctr_xyz789...
+Saved: /path/to/repo/downloads/test.txt
+~~~
 
-2) Inspect the assistant message’s **annotations** to capture:
-   - `container_id`
-   - `file_id`
-   - `filename`
+## Where files go
+Files are written to a local `downloads/` folder next to the script. If multiple files are produced, each is downloaded.
 
-3) Call the container file APIs to **retrieve** and **save** the file locally.
+## How it works (very briefly)
+1. Creates a `responses.create(...)` call with the `code_interpreter` tool.
+2. Reads `response.output[*].content[*].annotations[*]` to collect `(container_id, file_id, filename)`.
+3. Retrieves bytes via `client.containers.files.content.retrieve(...)`.
+4. Writes to `downloads/<filename>`.
 
----
-
-## Official docs
-
-Azure AI Foundry — Responses API (Code Interpreter section):  
-https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?tabs=python-secure#code-interpreter
-
----
-
-## Common hiccups
-
-- **“No files found in annotations.”** Ensure your instruction actually writes a file. Re-run and inspect the notebook cell that prints the annotations.
-- **“404/expired container.”** Containers are ephemeral. Re-run the response request if the container has expired.
-- **Auth issues.** Confirm your environment works with `DefaultAzureCredential()` (e.g., VS Code sign-in, Azure CLI login). You can also flip the toggle to API-key mode in the script.
+## Troubleshooting
+- **“No files found in annotations.”**
+  Ensure your prompt actually **writes a file** in Code Interpreter and that the selected model supports the tool.
+- **Auth issues**
+  Verify `az login` or your Managed Identity is available to `DefaultAzureCredential`.
