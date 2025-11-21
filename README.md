@@ -1,9 +1,9 @@
 # Downloading files from Azure OpenAI Responses API (Code Interpreter) — Python
 
-Simple examples (REST API, openai python SDK) that create a response with the Code Interpreter tool and download all files produced by that run.
+Simple examples (REST API, openai python SDK) that create a response with the Code Interpreter tool and download all files produced by that run. 
 
-Reference documentation: [Azure OpenAI Responses API - Code Interpreter](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?tabs=python-secure#code-interpreter)
-
+Classic Foundry documentation: [Azure OpenAI Responses API - Code Interpreter](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?tabs=python-secure#code-interpreter)
+New Foundry documentation: [Azure OpenAI Responses API - Azure OpenAI | Microsoft Learn](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/how-to/responses?view=foundry&tabs=python-key#file-inputs-and-outputs)
 
 ## Requirements
 - Python 3.9+
